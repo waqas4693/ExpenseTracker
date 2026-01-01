@@ -3,6 +3,7 @@ class AppConstants {
   static const String expensesKey = 'expenses';
   static const String categoriesKey = 'categories';
   static const String themeKey = 'theme_mode';
+  static const String parsedExpensesKey = 'parsed_expenses'; // Temporary SMS expenses
 
   // Expense Categories
   static const List<String> defaultCategories = [

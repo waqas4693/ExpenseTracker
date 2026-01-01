@@ -25,7 +25,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _navController = Get.put(NavigationController());
+    _navController = Get.find<NavigationController>();
     _navController.setNavItem(NavItem.settings);
   }
 

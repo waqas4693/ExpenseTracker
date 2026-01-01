@@ -30,6 +30,10 @@ dependencies:
   # Utilities
   uuid: ^4.5.1
 
+  # SMS Reading
+  permission_handler: ^11.0.0
+  sms_advanced: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

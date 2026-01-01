@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     expenseController = Get.find<ExpenseController>();
-    navController = Get.put(NavigationController());
+    navController = Get.find<NavigationController>();
 
     // Set initial nav item
     navController.setNavItem(NavItem.home);

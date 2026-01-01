@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import '../data/models/expense_model.dart';
 import '../data/repositories/expense_repository.dart';
 import 'filter_controller.dart';
+import 'navigation_controller.dart';
+import '../routes/app_routes.dart';
 
 class ExpenseController extends GetxController {
   final ExpenseRepository _repository = ExpenseRepository();
@@ -87,7 +89,21 @@ class ExpenseController extends GetxController {
       await _repository.addExpense(expense);
       await loadExpenses();
       await loadFilteredExpenses();
-      Get.back();
+      
+      // Navigate to home page and update navigation state
+      try {
+        final navController = Get.find<NavigationController>();
+        navController.setNavItem(NavItem.home);
+      } catch (e) {
+        // NavigationController might not be available, continue anyway
+      }
+      
+      // Navigate to home page
+      Get.offNamedUntil(
+        AppRoutes.home,
+        (route) => false, // Clear all previous routes
+      );
+      
       Get.snackbar('Success', 'Expense added successfully');
     } catch (e) {
       Get.snackbar(
@@ -152,6 +168,43 @@ class ExpenseController extends GetxController {
       categoryTotal.value = data['total'] as double;
     } catch (e) {
       Get.snackbar('Error', 'Failed to load category breakdown: $e');
+    }
+  }
+
+  /// Bulk create expenses (used for SMS expenses)
+  /// Returns the number of successfully created expenses
+  Future<int> bulkCreateExpenses(List<ExpenseModel> expenses) async {
+    if (expenses.isEmpty) return 0;
+
+    isLoading.value = true;
+    int successCount = 0;
+    try {
+      // Try bulk create first
+      try {
+        await _repository.bulkCreateExpenses(expenses);
+        successCount = expenses.length;
+      } catch (e) {
+        // Fallback to individual creation
+        for (final expense in expenses) {
+          try {
+            await _repository.addExpense(expense);
+            successCount++;
+          } catch (err) {
+            // Continue with other expenses even if one fails
+            print('Failed to save expense ${expense.id}: $err');
+          }
+        }
+      }
+
+      // Reload expenses after bulk create
+      await loadExpenses();
+      await loadFilteredExpenses();
+
+      return successCount;
+    } catch (e) {
+      throw Exception('Failed to bulk create expenses: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 }

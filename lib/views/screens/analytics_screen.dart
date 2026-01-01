@@ -27,8 +27,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   void initState() {
     super.initState();
-    _navController = Get.put(NavigationController());
-    _navController.setNavItem(NavItem.analytics);
+    _navController = Get.find<NavigationController>();
+    // _navController.setNavItem(NavItem.analytics);
     _customDate = DateTime.now();
   }
 

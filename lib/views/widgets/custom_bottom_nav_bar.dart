@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/navigation_controller.dart';
+import 'package:flutter/material.dart';
+
 import '../../routes/app_routes.dart';
+import '../../controllers/navigation_controller.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({super.key});
@@ -10,141 +11,116 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final navController = Get.find<NavigationController>();
 
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Obx(
+      () => Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          // Home
-          _buildNavItem(
-            context: context,
-            icon: Icons.home,
-            label: 'Home',
-            navItem: NavItem.home,
-            controller: navController,
+          // Bottom Navigation Bar
+          BottomNavigationBar(
+            currentIndex: _getCurrentIndex(navController.currentNavItem.value),
+            onTap: (index) => _onItemTapped(index, navController),
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: const Color(0xFF1A1A1A),
+            unselectedItemColor: Colors.grey[600],
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.normal,
+            ),
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list_alt),
+                label: 'All Expense',
+              ),
+              // Placeholder for center button
+              BottomNavigationBarItem(
+                icon: Icon(Icons.circle_outlined, color: Colors.transparent),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.sms),
+                label: 'SMS Expenses',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+              ),
+            ],
           ),
-          // All Expenses
-          _buildNavItem(
-            context: context,
-            icon: Icons.list_alt,
-            label: 'All Expense',
-            navItem: NavItem.allExpenses,
-            controller: navController,
-          ),
-          // Plus Button (Center)
-          _buildPlusButton(context),
-          // Analytics
-          _buildNavItem(
-            context: context,
-            icon: Icons.bar_chart,
-            label: 'Analytics',
-            navItem: NavItem.analytics,
-            controller: navController,
-          ),
-          // Settings
-          _buildNavItem(
-            context: context,
-            icon: Icons.settings,
-            label: 'Settings',
-            navItem: NavItem.settings,
-            controller: navController,
+          // Center Add Button
+          Positioned(
+            bottom: 8,
+            child: FloatingActionButton(
+              onPressed: () => Get.toNamed(AppRoutes.addExpense),
+              backgroundColor: const Color(0xFF1A1A1A),
+              elevation: 2,
+              mini: true,
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required NavItem navItem,
-    required NavigationController controller,
-  }) {
-    return Obx(() {
-      final isSelected = controller.currentNavItem.value == navItem;
-      return GestureDetector(
-        onTap: () {
-          controller.setNavItem(navItem);
-          switch (navItem) {
-            case NavItem.home:
-              Get.offNamed('/');
-              break;
-            case NavItem.allExpenses:
-              Get.offNamed('/all-expenses');
-              break;
-            case NavItem.analytics:
-              Get.offNamed('/analytics');
-              break;
-            case NavItem.settings:
-              Get.offNamed('/settings');
-              break;
-          }
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF1A1A1A) : Colors.grey[600],
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isSelected ? const Color(0xFF1A1A1A) : Colors.grey[600],
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+  int _getCurrentIndex(NavItem navItem) {
+    switch (navItem) {
+      case NavItem.home:
+        return 0;
+      case NavItem.allExpenses:
+        return 1;
+      case NavItem.smsExpenses:
+        return 3; // Skip index 2 (center button)
+      case NavItem.settings:
+        return 4; // Skip index 2 (center button)
+    }
   }
 
-  Widget _buildPlusButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.addExpense),
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
-          shape: BoxShape.circle,
-          border: Border.all(width: 3, color: Colors.transparent),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF9C27B0), Color(0xFF2196F3)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.purple.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF1A1A1A),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
-        ),
-      ),
+  void _onItemTapped(int index, NavigationController controller) {
+    // Prevent navigation if already on the same route
+    final currentRoute = Get.currentRoute;
+    String targetRoute;
+    NavItem targetNavItem;
+
+    switch (index) {
+      case 0:
+        targetRoute = '/';
+        targetNavItem = NavItem.home;
+        break;
+      case 1:
+        targetRoute = '/all-expenses';
+        targetNavItem = NavItem.allExpenses;
+        break;
+      case 2:
+        // Center button - handled by FloatingActionButton
+        return;
+      case 3:
+        targetRoute = '/sms-expenses';
+        targetNavItem = NavItem.smsExpenses;
+        break;
+      case 4:
+        targetRoute = '/settings';
+        targetNavItem = NavItem.settings;
+        break;
+      default:
+        return;
+    }
+
+    // If already on the target route, don't navigate
+    if (currentRoute == targetRoute) {
+      return;
+    }
+
+    // Update navigation state
+    controller.setNavItem(targetNavItem);
+
+    // Navigate to the target route using offNamedUntil to preserve permanent controllers
+    Get.offNamedUntil(
+      targetRoute,
+      (route) => false, // Clear all previous routes
     );
   }
 }

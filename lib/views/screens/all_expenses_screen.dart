@@ -56,7 +56,7 @@ class _AllExpensesScreenState extends State<AllExpensesScreen> {
   @override
   void initState() {
     super.initState();
-    _navController = Get.put(NavigationController());
+    _navController = Get.find<NavigationController>();
     _navController.setNavItem(NavItem.allExpenses);
     // Load category data on init
     WidgetsBinding.instance.addPostFrameCallback((_) {

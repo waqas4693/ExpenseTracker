@@ -4,7 +4,7 @@ import '../views/screens/sign_in_screen.dart';
 import '../views/screens/sign_up_screen.dart';
 import '../views/screens/home_screen.dart';
 import '../views/screens/all_expenses_screen.dart';
-import '../views/screens/analytics_screen.dart';
+import '../views/screens/sms_expenses_screen.dart';
 import '../views/screens/settings_screen.dart';
 import '../views/screens/add_expense_screen.dart';
 
@@ -14,7 +14,7 @@ class AppRoutes {
   static const String signUp = '/sign-up';
   static const String home = '/';
   static const String allExpenses = '/all-expenses';
-  static const String analytics = '/analytics';
+  static const String smsExpenses = '/sms-expenses';
   static const String settings = '/settings';
   static const String addExpense = '/add-expense';
 
@@ -24,7 +24,7 @@ class AppRoutes {
     GetPage(name: signUp, page: () => const SignUpScreen()),
     GetPage(name: home, page: () => const HomeScreen()),
     GetPage(name: allExpenses, page: () => const AllExpensesScreen()),
-    GetPage(name: analytics, page: () => const AnalyticsScreen()),
+    GetPage(name: smsExpenses, page: () => const SmsExpensesScreen()),
     GetPage(name: settings, page: () => const SettingsScreen()),
     GetPage(name: addExpense, page: () => const AddExpenseScreen()),
   ];
